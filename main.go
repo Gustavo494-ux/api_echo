@@ -1,11 +1,13 @@
 package main
 
 import (
+	"api_echo_modelo/src/routes"
+
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	e := echo.New()
+	e := routes.Gerar()
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(200, &echo.Map{"data": "Hello from Echo & MySql"})
