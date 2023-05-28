@@ -13,10 +13,5 @@ func Conectar() (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	if erro := db.Ping(); erro != nil {
-		db.Close()
-		return nil, erro
-	}
-
 	return db, nil
 }
