@@ -4,6 +4,7 @@ import (
 	"api_echo_modelo/src/database"
 	"api_echo_modelo/src/models"
 	"api_echo_modelo/src/repository"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -57,6 +58,48 @@ func BuscarTestePorId(c echo.Context) error {
 
 	repositorio := repository.NovoRepositorioDeTeste(db)
 	testeBanco, err := repositorio.BuscarTestePorId(testeId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, testeBanco)
+}
+
+// AtualizarTeste atualiza os dados do teste
+func AtualizarTeste(c echo.Context) error {
+	testeId, erro := strconv.ParseUint(c.Param("testeId"), 10, 64)
+	if erro != nil {
+		return c.JSON(http.StatusBadRequest, erro)
+	}
+
+	var test models.Teste
+	err := c.Bind(&test)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	test.Validar()
+
+	db, err := database.Conectar()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer db.Close()
+
+	repositorio := repository.NovoRepositorioDeTeste(db)
+	testeBanco, err := repositorio.BuscarTestePorId(testeId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	if testeBanco.Id == 0 {
+		return c.JSON(http.StatusNotFound, errors.New("teste não encontrado"))
+	}
+
+	if err = repositorio.AtualizarTeste(testeId, test); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	testeBanco, err = repositorio.BuscarTestePorId(testeId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
