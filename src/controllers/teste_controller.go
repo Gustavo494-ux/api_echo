@@ -61,5 +61,5 @@ func BuscarTestePorId(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, testeBanco)
+	return c.JSON(http.StatusOK, testeBanco)
 }
