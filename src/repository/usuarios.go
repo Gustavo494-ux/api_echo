@@ -60,3 +60,17 @@ func (repositorio Usuarios) BuscarPorId(usuarioId uint64) (models.Usuario, error
 	}
 	return usuarios, nil
 }
+
+// BuscarUsuario busca todos os usuários salvos no banco
+func (repositorio Usuarios) BuscarUsuarios() ([]models.Usuario, error) {
+	var usuarios []models.Usuario
+	erro := repositorio.db.Select(&usuarios, "SELECT id,nome,email,senha FROM Usuarios ")
+	if len(usuarios) == 0 {
+		return []models.Usuario{}, errors.New("nenhum usuário foi encontrado, verifique os dados fornecidos")
+	}
+
+	if erro != nil {
+		return []models.Usuario{}, erro
+	}
+	return usuarios, nil
+}

@@ -68,3 +68,24 @@ func BuscarUsuario(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, usuario)
 }
+
+// BuscarUsuarios busca todos os usuários salvos no banco
+func BuscarUsuarios(c echo.Context) error {
+	db, erro := database.Conectar()
+	if erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro)
+	}
+	defer db.Close()
+
+	repositorio := repository.NovoRepositoDeUsuario(db)
+	usuarios, erro := repositorio.BuscarUsuarios()
+	if erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro)
+	}
+
+	if len(usuarios) == 0 {
+		return c.JSON(http.StatusNotFound, errors.New("nenhum usuário foi encontrado"))
+	}
+
+	return c.JSON(http.StatusOK, usuarios)
+}
