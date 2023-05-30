@@ -3,7 +3,6 @@ package repository
 import (
 	"api_echo_modelo/src/models"
 	"errors"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -65,7 +64,29 @@ func (repositorio Teste) AtualizarTeste(testeId uint64, teste models.Teste) erro
 		testeId,
 	)
 
-	fmt.Println(testeId)
+	linhasAfetadas, err := statement.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if erro != nil {
+		return erro
+	}
+
+	if linhasAfetadas == 0 {
+		return errors.New("nenhuma linha foi afetada, verifique os dados passados")
+	}
+
+	return nil
+}
+
+// DeletarTeste
+func (repositorio Teste) DeletarTeste(testeId uint64) error {
+	statement, erro := repositorio.db.Exec(
+		` DELETE FROM Tabela_Teste  
+			where id = ? `,
+		testeId,
+	)
+
 	linhasAfetadas, err := statement.RowsAffected()
 	if err != nil {
 		return err
