@@ -98,3 +98,24 @@ func (repositorio Usuarios) AtualizarUsuario(usuarioId uint64, usuario models.Us
 	}
 	return nil
 }
+
+// DeletarUsuario deleta um usuário do banco de dados
+func (repositorio Usuarios) DeletarUsuario(usuarioId uint64) error {
+	statement, erro := repositorio.db.Exec(
+		` DELETE FROM Usuarios WHERE id =? `,
+		usuarioId,
+	)
+	linhasAfetadas, err := statement.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if linhasAfetadas == 0 {
+		return errors.New("nenhum registro foi afetado, Verifique os dados fornecidos")
+	}
+
+	if erro != nil {
+		return erro
+	}
+
+	return nil
+}

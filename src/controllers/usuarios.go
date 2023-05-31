@@ -94,7 +94,7 @@ func BuscarUsuarios(c echo.Context) error {
 func AtualizarUsuario(c echo.Context) error {
 	usuarioId, erro := strconv.ParseUint(c.Param("usuarioId"), 10, 64)
 	if erro != nil {
-		return c.JSON(http.StatusBadRequest, erro)
+		return c.JSON(http.StatusBadRequest, erro.Error())
 	}
 
 	var usuarioRequisicao models.Usuario
@@ -129,4 +129,34 @@ func AtualizarUsuario(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, usuarioBanco)
+}
+
+// DeletarUsuario deleta um usuário do banco de dados
+func DeletarUsuario(c echo.Context) error {
+	usuarioId, erro := strconv.ParseUint(c.Param("usuarioId"), 10, 64)
+	if erro != nil {
+		return c.JSON(http.StatusBadRequest, erro.Error())
+	}
+
+	db, erro := database.Conectar()
+	if erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro.Error())
+	}
+	defer db.Close()
+
+	repositorio := repository.NovoRepositoDeUsuario(db)
+	usuarioBanco, erro := repositorio.BuscarPorId(usuarioId)
+	if erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro.Error())
+	}
+
+	if usuarioBanco.ID == 0 {
+		return c.JSON(http.StatusNotFound, errors.New("usuário não encontrado"))
+	}
+
+	if erro = repositorio.DeletarUsuario(usuarioId); erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro.Error())
+	}
+
+	return c.JSON(http.StatusNoContent, nil)
 }

@@ -11,5 +11,5 @@ func RotasUsuarios(e *echo.Echo) {
 	e.GET("/usuarios", controllers.BuscarUsuarios)
 	e.GET("/usuarios/:usuarioId", controllers.BuscarUsuario)
 	e.PUT("/usuarios/:usuarioId", controllers.AtualizarUsuario)
-	/*e.DELETE("/teste/:testeId", controllers.DeletarTeste)*/
+	e.DELETE("/usuarios/:usuarioId", controllers.DeletarUsuario)
 }
