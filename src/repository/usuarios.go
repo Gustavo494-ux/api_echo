@@ -99,6 +99,19 @@ func (repositorio Usuarios) AtualizarUsuario(usuarioId uint64, usuario models.Us
 	return nil
 }
 
+// BuscarPorEmail busca um usuário por email e retorna seu id e senha com hash
+func (repositorio Usuarios) BuscarPorEmail(email string) (models.Usuario, error) {
+	usuarios := models.Usuario{}
+	erro := repositorio.db.Get(&usuarios, "SELECT id,senha FROM Usuarios WHERE email = ?", email)
+	if usuarios.ID == 0 {
+		return models.Usuario{}, errors.New("nenhum usuário foi encontrado, verifique os dados fornecidos")
+	}
+	if erro != nil {
+		return models.Usuario{}, erro
+	}
+	return usuarios, nil
+}
+
 // DeletarUsuario deleta um usuário do banco de dados
 func (repositorio Usuarios) DeletarUsuario(usuarioId uint64) error {
 	statement, erro := repositorio.db.Exec(
