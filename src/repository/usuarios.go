@@ -74,3 +74,27 @@ func (repositorio Usuarios) BuscarUsuarios() ([]models.Usuario, error) {
 	}
 	return usuarios, nil
 }
+
+// AtualizarUsuario Atualiza as informações de um usuário no banco
+func (repositorio Usuarios) AtualizarUsuario(usuarioId uint64, usuario models.Usuario) error {
+	statement, erro := repositorio.db.Exec(
+		` UPDATE Usuarios SET nome =?, email =?, senha =? WHERE id =? `,
+		usuario.Nome,
+		usuario.Email,
+		usuario.Senha,
+		usuarioId,
+	)
+	linhasAfetadas, err := statement.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if linhasAfetadas == 0 {
+		return errors.New("nenhum registro foi afetado, Verifique os dados fornecidos")
+	}
+
+	if erro != nil {
+		return erro
+	}
+	return nil
+}
