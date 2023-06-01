@@ -1,7 +1,9 @@
 package models
 
 import (
+	"api_echo_modelo/src/security"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -51,6 +53,15 @@ func (usuario *Usuario) validar(etapa string) error {
 func (usuario *Usuario) formatar(etapa string) error {
 	usuario.Nome = strings.TrimSpace(usuario.Nome)
 	usuario.Email = strings.TrimSpace(usuario.Email)
+
+	if etapa == "cadastro" {
+		senhaHash, erro := security.GerarHash(usuario.Senha)
+		if erro != nil {
+			return erro
+		}
+		usuario.Senha = senhaHash
+		fmt.Println(usuario.Senha)
+	}
 
 	return nil
 }
