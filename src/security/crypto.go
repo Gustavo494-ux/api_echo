@@ -3,12 +3,10 @@ package security
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 )
 
 func GerarHash(senhaDescriptografada string) (string, error) {
@@ -37,42 +35,52 @@ func CompararHash(senhaCriptografada, senhaDescriptografada string) error {
 }
 
 func CriptografarTexto(textoClaro string, chave string) (string, error) {
-	bloco, err := aes.NewCipher([]byte(chave))
-	if err != nil {
-		return "", err
-	}
+	chaveByte := ReduzirChave([]byte(chave), 32)
+	iv := ReduzirChave([]byte(chave), aes.BlockSize)
 
-	iv := make([]byte, aes.BlockSize)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	bloco, err := aes.NewCipher(chaveByte)
+	if err != nil {
 		return "", err
 	}
 
 	stream := cipher.NewCFBEncrypter(bloco, iv)
-	ciphertext := make([]byte, len(textoClaro))
-	stream.XORKeyStream(ciphertext, []byte(textoClaro))
+	textoCifrado := make([]byte, len(textoClaro))
+	stream.XORKeyStream(textoCifrado, []byte(textoClaro))
 
-	ciphertext = append(iv, ciphertext...)
-	return fmt.Sprintf("%x", ciphertext), nil
+	textoCifrado = append(iv, textoCifrado...)
+	return fmt.Sprintf("%x", textoCifrado), nil
 }
 
 func DescriptografarTexto(textoCifrado string, chave string) (string, error) {
-	bloco, err := aes.NewCipher([]byte(chave))
+	chaveByte := ReduzirChave([]byte(chave), 32)
+	iv := ReduzirChave([]byte(chave), aes.BlockSize)
+
+	textoCifradoBytes, err := hex.DecodeString(textoCifrado)
 	if err != nil {
 		return "", err
 	}
 
-	ciphertext, err := hex.DecodeString(textoCifrado)
+	if len(textoCifradoBytes) < aes.BlockSize {
+		return "", errors.New("texto cifrado inválido")
+	}
+
+	bloco, err := aes.NewCipher(chaveByte)
 	if err != nil {
 		return "", err
 	}
 
-	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
-
-	plaintext := make([]byte, len(ciphertext))
+	textoCifradoBytes = textoCifradoBytes[aes.BlockSize:]
 
 	stream := cipher.NewCFBDecrypter(bloco, iv)
-	stream.XORKeyStream(plaintext, ciphertext)
+	stream.XORKeyStream(textoCifradoBytes, textoCifradoBytes)
 
-	return string(plaintext), nil
+	return string(textoCifradoBytes), nil
+}
+
+func ReduzirChave(chave []byte, novoTamanho int) []byte {
+	novaChave, _ := GerarHash(hex.EncodeToString(chave))
+	if novoTamanho >= len(novaChave) {
+		return chave
+	}
+	return append([]byte(nil), novaChave[:novoTamanho]...)
 }
