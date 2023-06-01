@@ -1,10 +1,14 @@
 package security
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 )
 
 func GerarHash(senhaDescriptografada string) (string, error) {
@@ -30,4 +34,45 @@ func CompararHash(senhaCriptografada, senhaDescriptografada string) error {
 	}
 
 	return nil
+}
+
+func CriptografarTexto(textoClaro string, chave string) (string, error) {
+	bloco, err := aes.NewCipher([]byte(chave))
+	if err != nil {
+		return "", err
+	}
+
+	iv := make([]byte, aes.BlockSize)
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return "", err
+	}
+
+	stream := cipher.NewCFBEncrypter(bloco, iv)
+	ciphertext := make([]byte, len(textoClaro))
+	stream.XORKeyStream(ciphertext, []byte(textoClaro))
+
+	ciphertext = append(iv, ciphertext...)
+	return fmt.Sprintf("%x", ciphertext), nil
+}
+
+func DescriptografarTexto(textoCifrado string, chave string) (string, error) {
+	bloco, err := aes.NewCipher([]byte(chave))
+	if err != nil {
+		return "", err
+	}
+
+	ciphertext, err := hex.DecodeString(textoCifrado)
+	if err != nil {
+		return "", err
+	}
+
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+
+	plaintext := make([]byte, len(ciphertext))
+
+	stream := cipher.NewCFBDecrypter(bloco, iv)
+	stream.XORKeyStream(plaintext, ciphertext)
+
+	return string(plaintext), nil
 }
