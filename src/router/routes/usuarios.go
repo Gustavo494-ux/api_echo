@@ -2,14 +2,17 @@ package router
 
 import (
 	"api_echo_modelo/src/controllers"
+	"api_echo_modelo/src/middlewares"
 
 	"github.com/labstack/echo/v4"
 )
 
 func RotasUsuarios(e *echo.Echo) {
 	e.POST("/usuarios", controllers.CriarUsuario)
-	e.GET("/usuarios", controllers.BuscarUsuarios)
-	e.GET("/usuarios/:usuarioId", controllers.BuscarUsuario)
-	e.PUT("/usuarios/:usuarioId", controllers.AtualizarUsuario)
-	e.DELETE("/usuarios/:usuarioId", controllers.DeletarUsuario)
+	grupoUsuario := e.Group("/usuarios", middlewares.Autenticar)
+
+	grupoUsuario.GET("", controllers.BuscarUsuarios)
+	grupoUsuario.GET("/:usuarioId", controllers.BuscarUsuario)
+	grupoUsuario.PUT("/:usuarioId", controllers.AtualizarUsuario)
+	grupoUsuario.DELETE("/:usuarioId", controllers.DeletarUsuario)
 }
