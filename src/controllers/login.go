@@ -34,5 +34,11 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, erro.Error())
 	}
 
-	return c.JSON(http.StatusOK, usuarioBanco)
+	var login models.Login
+	login.Token, erro = security.CriarTokenJWT(usuarioBanco.ID)
+	if erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro.Error())
+	}
+
+	return c.JSON(http.StatusOK, login)
 }
