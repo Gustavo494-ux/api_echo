@@ -12,6 +12,6 @@ CREATE TABLE IF NOT exists Usuarios(
 	Id int primary key auto_increment,
     Nome varchar(100), 
     Email varchar(100),
-    Senha varchar(100), 
+    Senha varchar(128), 
     CriadoEm timestamp default current_timestamp
 )ENGINE=InnoDB;

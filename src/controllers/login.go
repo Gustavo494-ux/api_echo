@@ -4,6 +4,7 @@ import (
 	"api_echo_modelo/src/database"
 	"api_echo_modelo/src/models"
 	"api_echo_modelo/src/repository"
+	"api_echo_modelo/src/security"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -29,5 +30,15 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, erro.Error())
 	}
 
-	return c.JSON(http.StatusOK, usuarioBanco)
+	if erro = security.CompararHash(usuarioBanco.Senha, usuario.Senha); erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro.Error())
+	}
+
+	var login models.Login
+	login.Token, erro = security.CriarTokenJWT(usuarioBanco.ID)
+	if erro != nil {
+		return c.JSON(http.StatusInternalServerError, erro.Error())
+	}
+
+	return c.JSON(http.StatusOK, login)
 }
