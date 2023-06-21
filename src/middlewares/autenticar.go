@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"api_echo_modelo/src/security"
+	"api_echo_modelo/src/authentication"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -9,7 +9,7 @@ import (
 
 func Autenticar(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if erro := security.ValidarToken(c); erro != nil {
+		if erro := authentication.ValidarToken(c); erro != nil {
 			return c.JSON(http.StatusUnauthorized, "o token informado é inválido")
 		}
 		err := next(c)

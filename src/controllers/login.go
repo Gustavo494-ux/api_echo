@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"api_echo_modelo/src/authentication"
 	"api_echo_modelo/src/database"
 	"api_echo_modelo/src/models"
 	"api_echo_modelo/src/repository"
@@ -35,7 +36,7 @@ func Login(c echo.Context) error {
 	}
 
 	var login models.Login
-	login.Token, erro = security.CriarTokenJWT(usuarioBanco.ID)
+	login.Token, erro = authentication.CriarTokenJWT(usuarioBanco.ID)
 	if erro != nil {
 		return c.JSON(http.StatusInternalServerError, erro.Error())
 	}
