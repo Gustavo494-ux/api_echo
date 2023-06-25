@@ -19,7 +19,7 @@ func CriarTokenJWT(usuarioID uint64) (string, error) {
 	permissoes["exp"] = time.Now().Add(time.Hour * 6).Unix()
 	permissoes["usuarioId"] = usuarioID
 
-	return token.SignedString([]byte(configs.SecretKey))
+	return token.SignedString([]byte(configs.Jwt_Key))
 }
 
 // ValidarToken verifica se o token passado na requisição é válido
@@ -48,5 +48,5 @@ func retornarChaveDeVerificacao(token *jwt.Token) (interface{}, error) {
 		return nil, fmt.Errorf("método de assinatura inesperado! %v", token.Header["alg"])
 	}
 
-	return configs.SecretKey, nil
+	return configs.Jwt_Key, nil
 }

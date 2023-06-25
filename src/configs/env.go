@@ -12,7 +12,7 @@ import (
 var (
 	StringConexao = ""
 	Porta         = 0
-	SecretKey     []byte
+	Jwt_Key       []byte
 )
 
 // Carregar vai inicializar as variaveis de ambiente
@@ -28,7 +28,7 @@ func Carregar() {
 		Porta = 5000
 	}
 
-	SecretKey = []byte(os.Getenv("SECRET_KEY"))
+	Jwt_Key = []byte(os.Getenv("JWT_KEY"))
 
 	StringConexao = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		os.Getenv("DB_USUARIO"),
