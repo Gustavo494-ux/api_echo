@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Autenticar(next echo.HandlerFunc) echo.HandlerFunc {
+func JWTAuthentication(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		if erro := authentication.ValidarToken(c); erro != nil {
 			return c.JSON(http.StatusUnauthorized, "o token informado é inválido")
